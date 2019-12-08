@@ -6,7 +6,7 @@
 #include "PID.h"
 
 // for convenience
-using nlohmann::json;
+using json = nlohmann::json;
 using std::string;
 
 // For converting back and forth between radians and degrees.
@@ -37,6 +37,14 @@ int main() {
   /**
    * TODO: Initialize the pid variable.
    */
+   //pid.Init(1.0, 0.0, 0.0);
+   //pid.Init(0.0, 1.0, 0.0);
+   //pid.Init(0.0, 0.0, 1.0);
+   //pid.Init(0.5, 0.005, 2.0);
+   //pid.Init(0.1, 0.001, 3.0);
+   //pid.Init(0.2, 0.001, 2.75);
+   //pid.Init(0.15, 0.001, 2.5);
+   pid.Init(0.125, 0.001, 2.25);
 
   h.onMessage([&pid](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length, 
                      uWS::OpCode opCode) {
@@ -54,15 +62,19 @@ int main() {
         if (event == "telemetry") {
           // j[1] is the data JSON object
           double cte = std::stod(j[1]["cte"].get<string>());
-          double speed = std::stod(j[1]["speed"].get<string>());
-          double angle = std::stod(j[1]["steering_angle"].get<string>());
-          double steer_value;
+          //double speed = std::stod(j[1]["speed"].get<string>());
+          //double angle = std::stod(j[1]["steering_angle"].get<string>());
+          double steer_value = 0.0;
           /**
            * TODO: Calculate steering value here, remember the steering value is
            *   [-1, 1].
            * NOTE: Feel free to play around with the throttle and speed.
            *   Maybe use another PID controller to control the speed!
            */
+		   
+		  pid.UpdateError(cte);
+		  
+          steer_value = pid.TotalError();
           
           // DEBUG
           std::cout << "CTE: " << cte << " Steering Value: " << steer_value 
